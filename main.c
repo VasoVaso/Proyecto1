@@ -16,29 +16,8 @@ typedef struct card
 
 #define MAX_CARDS 60
 #define MAX_LINE_LENGTH 200
+
 int MAX_LP, MAX_AP, MAX_DP, MIN_LP, MIN_AP, MIN_DP, cardAmount;
-
-void freeCards(Card *head)
-{
-    Card *current = head;
-    while (current != NULL)
-    {
-        Card *next = current->next;
-        free(current);
-        current = next;
-    }
-}
-
-Card* createCard(char *name, char *type, int lp, int ap, int dp)
-{
-    Card *newCard = (Card*)malloc(sizeof(Card));
-    strcpy(newCard->name, name);
-    strcpy(newCard->type, type);
-    newCard->LP = lp;
-    newCard->AP = ap;
-    newCard->DP = dp;
-    return newCard;
-}
 
 void addCard(Card **head, Card *newCard)
 {
@@ -124,6 +103,28 @@ void readFile(Card **list)
     fclose(file);
 }
 
+void freeCards(Card *head)
+{
+    Card *current = head;
+    while (current != NULL)
+    {
+        Card *next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+Card* createCard(char *name, char *type, int lp, int ap, int dp)
+{
+    Card *newCard = (Card*)malloc(sizeof(Card));
+    strcpy(newCard->name, name);
+    strcpy(newCard->type, type);
+    newCard->LP = lp;
+    newCard->AP = ap;
+    newCard->DP = dp;
+    return newCard;
+}
+
 void printCards(Card *head)
 {
     int i = 1;
@@ -137,15 +138,131 @@ void printCards(Card *head)
     }
 }
 
+void initDeckArray(Card deck[])
+{
+    for(int i = 0; i < MAX_CARDS; i++)
+    {
+        strcpy(deck[i].name, "");
+        strcpy(deck[i].type, "");
+        deck[i].LP = 0;
+        deck[i].AP = 0;
+        deck[i].DP = 0;
+    }
+}
+
+void listToArray(Card *head, Card deck[])
+{
+    int i=0;
+    Card *current = head;
+    while (current != NULL)
+    {
+        strcpy(deck[i].name, current->name);
+        strcpy(deck[i].type, current->type);
+        deck[i].LP = current->LP;
+        deck[i].AP = current->AP;
+        deck[i].DP = current->DP;
+        current = current->next;
+        i++;
+    }
+}
+
+void fillCardPool(int selectedCardsIndex[])
+{
+    bool saveCard = false;
+    int pos = 0;
+    while(pos < 30)
+    {
+        int randomIndex = rand() % cardAmount; // GENERA UN NÚMERO ALEATORIO ENTRE 0 Y EL NÚMERO DE CARTAS EN JUEGO
+
+        for(int i = 0; i < 30; i++)
+        {
+            if(randomIndex == selectedCardsIndex[i])
+            {
+                saveCard = false;
+                break;
+            }
+            else
+            {
+                saveCard = true;
+            }
+        }
+
+        if(saveCard == true)
+        {
+            selectedCardsIndex[pos] = randomIndex;
+            pos++;
+        }
+    }
+    printf(">> Index: \n\n");
+    for(int k = 0; k < 30; k++)
+    {
+        printf("%d. %d\n", k, selectedCardsIndex[k]);
+    }
+    printf("\n");
+}
+
+void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
+{
+    int pos = 0;
+    for(int i = 0; i < 15; i++)
+    {
+        strcpy(playerCardPool[i].name, deck[selectedIndex[pos]].name);
+        printf("%s -- %s\n", playerCardPool[i].name, deck[selectedIndex[pos]].name);
+        strcpy(playerCardPool[i].type, deck[selectedIndex[pos]].type);
+        playerCardPool[i].LP = deck[selectedIndex[pos]].LP;
+        playerCardPool[i].AP = deck[selectedIndex[pos]].AP;
+        playerCardPool[i].DP = deck[selectedIndex[pos]].DP;
+        pos++;
+    }
+    /*
+    for(int j = 15; j < 30; j++)
+    {
+        strcpy(pcCardPool[j].name, deck[selectedIndex[pos]].name);
+        strcpy(pcCardPool[j].type, deck[selectedIndex[pos]].type);
+        pcCardPool[j].LP = deck[selectedIndex[pos]].LP;
+        pcCardPool[j].AP = deck[selectedIndex[pos]].AP;
+        pcCardPool[j].DP = deck[selectedIndex[pos]].DP;
+        pos++;
+    }
+    */
+    printf(">> Player Cards: \n\n");
+    for(int g = 0; g < 15; g++)
+    {
+        printf("%d. %s, %s, %d, %d, %d\n", g,playerCardPool[g].name, playerCardPool[g].type, playerCardPool[g].LP, playerCardPool[g].AP, playerCardPool[g].DP);
+    }
+    printf("\n");
+
+    /*
+    printf(">> PC Cards: \n\n");
+    for(int l = 0; l < 15; l++)
+    {
+        printf("%d. %s, %s, %d, %d, %d\n", l+1,pcCardPool[l].name, pcCardPool[l].type, pcCardPool[l].LP, pcCardPool[l].AP, pcCardPool[l].DP);
+    }
+    printf("\n");
+    */
+}
+
+
 int main()
 {
     Card *head = NULL;
     Card *newCard;
+
     char name[50], type[15];
     int option=0, ntype = 0, lp = 0, ap = 0, dp = 0;
     srand(time(NULL));
 
     readFile(&head);
+
+    // GUARDAR EN ESTE ARREGLO EL ÍNDICE DE LAS CARTAS, QUE SERÁN IRREPETIBLES
+    int selectedCardsIndex[30];
+    for(int i = 0; i < 30; i++) {selectedCardsIndex[i]=-1;}
+
+    Card deck[MAX_CARDS];
+    initDeckArray(deck);
+
+    Card playerCardPool[15];
+    Card pcCardPool[15];
 
     // MENU
 
@@ -157,11 +274,21 @@ int main()
         scanf("%d", &option);
         switch(option)
         {
-            case 1: // Jugar
+            case 1: // JUGAR
                 system("cls");
                 if(cardAmount >= 30)
                 {
+                    listToArray(head, deck); // PASO LAS CARTAS DESDE LA LISTA HACIA UN ARREGLO
+                    printf("Monos: \n");
+                    for(int i = 0; i < cardAmount; i++)
+                    {
+                        printf("%d. %s, %s, %d, %d, %d\n", i,deck[i].name, deck[i].type, deck[i].LP, deck[i].AP, deck[i].DP);
+                    }
+                    printf("\n");
 
+                    fillCardPool(selectedCardsIndex);
+
+                    getPlayerCards(deck, playerCardPool,selectedCardsIndex);
                 }
                 else
                 {
@@ -171,12 +298,13 @@ int main()
                 getchar();
                 system("cls");
                 break;
-            case 2: // Crear Carta
+            case 2: // CREAR CARTA
                 system("cls");
                 if(cardAmount < MAX_CARDS)
                 {
                     printf(">> Card Name: ");
-                    scanf("%s", name);
+                    gets(name);
+                    gets(name);
 
                     do
                     {
@@ -259,12 +387,12 @@ int main()
                 getchar();
                 system("cls");
                 break;
-            case 3: // Ver Historial
+            case 3: // VER HISTORIAL
                 system("cls");
 
                 system("cls");
                 break;
-            case 4: // Salir del menú de opciones y terminar el programa
+            case 4: // SALIR DEL MENÚ
                 printf("\n>> Closing game...\n");
                 break;
             case 99: // revisar lista de cartas
