@@ -214,43 +214,91 @@ void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
         playerCardPool[i].DP = deck[selectedIndex[pos]].DP;
         pos++;
     }
-    /*
-    for(int j = 15; j < 30; j++)
-    {
-        strcpy(pcCardPool[j].name, deck[selectedIndex[pos]].name);
-        strcpy(pcCardPool[j].type, deck[selectedIndex[pos]].type);
-        pcCardPool[j].LP = deck[selectedIndex[pos]].LP;
-        pcCardPool[j].AP = deck[selectedIndex[pos]].AP;
-        pcCardPool[j].DP = deck[selectedIndex[pos]].DP;
-        pos++;
-    }
-    */
-    printf(">> Player Cards: \n\n");
+
+    printf("\n>> Player Cards: \n\n");
     for(int g = 0; g < 15; g++)
     {
         printf("%d. %s, %s, %d, %d, %d\n", g,playerCardPool[g].name, playerCardPool[g].type, playerCardPool[g].LP, playerCardPool[g].AP, playerCardPool[g].DP);
     }
     printf("\n");
+}
 
-    /*
-    printf(">> PC Cards: \n\n");
+void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
+{
+    int pos = 15;
+
+    for(int i = 0; i < 15; i++)
+    {
+        strcpy(pcCardPool[i].name, deck[selectedIndex[pos]].name);
+        printf("%s -- %s\n", pcCardPool[i].name, deck[selectedIndex[pos]].name);
+        strcpy(pcCardPool[i].type, deck[selectedIndex[pos]].type);
+        pcCardPool[i].LP = deck[selectedIndex[pos]].LP;
+        pcCardPool[i].AP = deck[selectedIndex[pos]].AP;
+        pcCardPool[i].DP = deck[selectedIndex[pos]].DP;
+        pos++;
+    }
+
+    printf("\n>> PC Cards: \n\n");
     for(int l = 0; l < 15; l++)
     {
-        printf("%d. %s, %s, %d, %d, %d\n", l+1,pcCardPool[l].name, pcCardPool[l].type, pcCardPool[l].LP, pcCardPool[l].AP, pcCardPool[l].DP);
+        printf("%d. %s, %s, %d, %d, %d\n", l,pcCardPool[l].name, pcCardPool[l].type, pcCardPool[l].LP, pcCardPool[l].AP, pcCardPool[l].DP);
     }
     printf("\n");
-    */
 }
+
+void playerCardSelection(Card playerCardPool[], Card playerHand[])
+{
+    int c1=0, c2=0, c3=0;
+    printf(">> Choose 3 cards from the pool by typing the index.");
+
+    do
+    {
+        printf("\nCard number 1: ");
+        scanf("%d", &c1);
+        if(c1 < 0 || c1 > 14)
+        {
+            printf(">> Error. Index entered is not valid. Try Again.\n");
+        }
+    }while(c1 < 0 || c1 > 14);
+
+    do
+    {
+        printf("\nCard number 2: ");
+        scanf("%d", &c2);
+        if(c2 < 0 || c2 > 14 || c2 == c1)
+        {
+            printf(">> Error. Index entered is not valid. Try Again.\n");
+        }
+    }while(c2 < 0 || c2 > 14 || c2 == c1);
+
+    do
+    {
+        printf("\nCard number 3: ");
+        scanf("%d", &c3);
+        if(c3 < 0 || c3 > 14 || c3 == c2 || c3 == c1)
+        {
+            printf(">> Error. Index entered is not valid. Try Again.\n");
+        }
+    }while(c3 < 0 || c3 > 14 || c3 == c2 || c3 == c1);
+
+    playerHand[0] = playerCardPool[c1];
+    playerHand[1] = playerCardPool[c2];
+    playerHand[2] = playerCardPool[c3];
+}
+
+
+
 
 
 int main()
 {
+    srand(time(NULL));
+
     Card *head = NULL;
     Card *newCard;
 
     char name[50], type[15];
-    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0;
-    srand(time(NULL));
+    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0, p1HandPos = 0, p2HandPos = 0;
 
     readFile(&head);
 
@@ -263,6 +311,10 @@ int main()
 
     Card playerCardPool[15];
     Card pcCardPool[15];
+
+    Card playerHand[15];
+    Card pcHand[15];
+
 
     // MENU
 
@@ -289,6 +341,20 @@ int main()
                     fillCardPool(selectedCardsIndex);
 
                     getPlayerCards(deck, playerCardPool,selectedCardsIndex);
+                    getPCCards(deck, pcCardPool,selectedCardsIndex);
+
+                    /*
+                    printf("\n\n>> Player hand: \n");
+                    for(int i = 0; i < 15; i++)
+                    {
+                        if(playerCardPool != -1)
+                        {
+                            printf("%d. %s, %s, %d, %d, %d\n", i,playerHand[i].name, playerHand[i].type, playerHand[i].LP, playerHand[i].AP, playerHand[i].DP);
+                        }
+                    }*/
+
+
+
                 }
                 else
                 {
