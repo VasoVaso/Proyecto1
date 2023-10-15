@@ -100,6 +100,7 @@ void readFile(Card **list)
 
         addCard(list, newstruct);
     }
+
     fclose(file);
 }
 
@@ -144,9 +145,9 @@ void initDeckArray(Card deck[], int limit)
     {
         strcpy(deck[i].name, "");
         strcpy(deck[i].type, "");
-        deck[i].LP = 0;
-        deck[i].AP = 0;
-        deck[i].DP = 0;
+        deck[i].LP = -1;
+        deck[i].AP = -1;
+        deck[i].DP = -1;
     }
 }
 
@@ -229,19 +230,12 @@ void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
         pcCardPool[i].DP = deck[selectedIndex[pos]].DP;
         pos++;
     }
-
-    printf("\n>> PC Cards: \n\n");
-    for(int l = 0; l < 15; l++)
-    {
-        printf("%d. %s, %s, %d, %d, %d\n", l,pcCardPool[l].name, pcCardPool[l].type, pcCardPool[l].LP, pcCardPool[l].AP, pcCardPool[l].DP);
-    }
-    printf("\n");
 }
 
 void playerCardSelection(Card playerCardPool[], Card playerHand[])
 {
     int c1=0, c2=0, c3=0;
-    printf("\n>> Choose 3 cards from the pool by typing the index.\n");
+    printf(">> Choose 3 cards from the pool by typing the index.\n");
 
     do
     {
@@ -291,6 +285,10 @@ void playerCardSelection(Card playerCardPool[], Card playerHand[])
     playerHand[2].AP = playerCardPool[c3].AP;
     playerHand[2].DP = playerCardPool[c3].DP;
 
+    playerCardPool[c1].LP = -1;
+    playerCardPool[c2].LP = -1;
+    playerCardPool[c3].LP = -1;
+
     printf("\n>> Done!");
 }
 
@@ -324,10 +322,196 @@ void pcCardSelection(Card pcCardPool[], Card pcHand[])
     pcHand[2].AP = pcCardPool[randomNumb3].AP;
     pcHand[2].DP = pcCardPool[randomNumb3].DP;
 
+    pcCardPool[randomNumb1].LP = -1;
+    pcCardPool[randomNumb2].LP = -1;
+    pcCardPool[randomNumb3].LP = -1;
+
     printf("\n>> PC cards in hand!");
 }
 
+void drawPlayerCard(Card playerCardPool[], Card playerHand[], int p1HandPos)
+{
+    int randomNumb = 0;
+    do
+    {
+        randomNumb = rand() % 15;
 
+    } while(playerCardPool[randomNumb].LP == -1);
+
+    strcpy(playerHand[p1HandPos].name, playerCardPool[randomNumb].name);
+    strcpy(playerHand[p1HandPos].type, playerCardPool[randomNumb].type);
+    playerHand[p1HandPos].LP = playerCardPool[randomNumb].LP;
+    playerHand[p1HandPos].AP = playerCardPool[randomNumb].AP;
+    playerHand[p1HandPos].DP = playerCardPool[randomNumb].DP;
+
+    playerCardPool[randomNumb].LP = -1;
+    printf("\n>> 1 CARD DRAWED [%s]\n", playerHand[p1HandPos].name);
+}
+
+void drawPCCard(Card pcCardPool[], Card pcHand[], int p2HandPos)
+{
+    int randomNumb = 0;
+    do
+    {
+        randomNumb = rand() % 15;
+
+    } while(pcCardPool[randomNumb].LP == -1);
+
+    strcpy(pcHand[p2HandPos].name, pcCardPool[randomNumb].name);
+    strcpy(pcHand[p2HandPos].type, pcCardPool[randomNumb].type);
+    pcHand[p2HandPos].LP = pcCardPool[randomNumb].LP;
+    pcHand[p2HandPos].AP = pcCardPool[randomNumb].AP;
+    pcHand[p2HandPos].DP = pcCardPool[randomNumb].DP;
+
+    pcCardPool[randomNumb].LP = -1;
+    printf("\n>> 1 CARD DRAWED BY PC\n");
+}
+
+void playerSummon(Card playerHand[], Card playerTable[], int p1TablePos)
+{
+    int select = -1;
+    bool canSummon = false;
+    printf("\n>> Select a card to summon: \n");
+    do
+    {
+        scanf("%d", &select);
+        if(playerHand[select].LP == -1)
+        {
+            printf(">> Error. Invalid index. Try Again.\n");
+            canSummon = false;
+        }
+        else
+        {
+            canSummon = true;
+        }
+    }while(canSummon == false);
+
+    strcpy(playerTable[p1TablePos].name, playerHand[select].name);
+    strcpy(playerTable[p1TablePos].type, playerHand[select].type);
+    playerTable[p1TablePos].LP = playerHand[select].LP;
+    playerTable[p1TablePos].AP = playerHand[select].AP;
+    playerTable[p1TablePos].DP = playerHand[select].DP;
+
+    playerHand[select].LP = -1;
+}
+
+void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card pcHand[], Card playerTable[], Card pcTable[])
+{
+    int playerHP = 5, pcHP = 5, turn = 1, p1HandPos = 3, p2HandPos = 3, p1TablePos = 0, p2TablePos = 0, inHandCounterP1 = 0,action = 0;
+    bool canSummon1 = true, canAttack1 = false, canSummon2 = true, canAttack2 = false;
+
+    do
+    {
+        // MENÚ DE JUEGO ----------------------------------------
+
+        printf("---------------------------------------------------\n");
+        printf(">> Player Cards in Play: \n");
+
+        for(int i = 0; i < 15; i++)
+        {
+            if(playerTable[i].LP != -1)
+            {
+                printf("%d. %s, %s, %d, %d, %d\n", i, playerTable[i].name, playerTable[i].type, playerTable[i].LP, playerTable[i].AP, playerTable[i].DP);
+            }
+        }
+        printf("\n----------------------- VS -----------------------\n");
+        printf(">> PC Cards in Play: \n");
+
+        for(int i = 0; i < 15; i++)
+        {
+            if(pcTable[i].LP != -1)
+            {
+                printf("%d. %s, %s, %d, %d, %d\n", i, pcTable[i].name, pcTable[i].type, pcTable[i].LP, pcTable[i].AP, pcTable[i].DP);
+            }
+        }
+        printf("\n---------------------------------------------------");
+        printf("\nTURN %d", turn);
+
+        // CUANDO EL TURNO SEA PAR, JUEGA EL PC. SI EL TURNO ES IMPAR, JUEGA EL USUARIO
+        if(turn % 2 == 0) // TURNO DEL PC *********
+        {
+            printf(", PC turn\n");
+
+            // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
+            if(p2HandPos < 15)
+            {
+                drawPCCard(pcCardPool, pcHand, p2HandPos);
+                p2HandPos++;
+            }
+            //-----------------------------------------------------
+
+        }
+        else // TURNO DEL USUARIO **********
+        {
+            printf(", YOUR turn\n");
+
+            // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
+            if(p1HandPos < 15)
+            {
+                drawPlayerCard(playerCardPool, playerHand, p1HandPos);
+                p1HandPos++;
+            }
+
+            printf("\n>> CARDS IN HAND: \n\n");
+            for(int i = 0; i < 15; i++)
+            {
+                if(playerHand[i].LP != -1)
+                {
+                    printf("%d. %s, %s, %d, %d, %d\n", i,playerHand[i].name, playerHand[i].type, playerHand[i].LP, playerHand[i].AP, playerHand[i].DP);
+                    inHandCounterP1++;
+                }
+            }
+
+            if(inHandCounterP1 == 15)
+            {
+                canSummon1 = false;
+            }
+
+            printf("\n>> What are you going to do?\n1. Attack\n2. Summon a Guardian from your hand\n\n>> Your option: ");
+            do
+            {
+                scanf("%d", &action);
+                if(action < 1 || action > 2)
+                {
+                    printf(">> Error. Enter a valid option. Try Again.\n");
+                }
+            } while (action < 1 || action > 2);
+
+            // COMANDO ATACAR
+            if(action == 1)
+            {
+                if(turn == 1 || canAttack1 == false)
+                {
+                    printf("\n>> You can't attack a card. Summoning instead...");
+                    action = 2;
+                }
+                else
+                {
+
+                }
+            }
+
+            // COMANDO INVOCAR
+            if(action == 2)
+            {
+                if(canSummon1 == false)
+                {
+                    printf("\n>> You can't summon, you have no cards left in your hand.");
+                }
+                else
+                {
+                    playerSummon(playerHand, playerTable, p1TablePos);
+                    p1TablePos++;
+                }
+            }
+        }
+        turn++;
+        printf("\n\n>> Pause.");
+        getchar();
+        getchar();
+        system("cls");
+    } while(playerHP > 0 || pcHP > 0);
+}
 
 int main()
 {
@@ -337,11 +521,11 @@ int main()
     Card *newCard;
 
     char name[50], type[15];
-    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0; //p1HandPos = 0, p2HandPos = 0;
+    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0;
 
     readFile(&head);
 
-    // GUARDAR EN ESTE ARREGLO EL ÍNDICE DE LAS CARTAS, QUE SERÁN IRREPETIBLES
+    // SE GUARDA EN ESTE ARREGLO EL ÍNDICE DE LAS CARTAS DEL MAZO PRINCIPAL, SERÁN IRREPETIBLES
     int selectedCardsIndex[30];
     for(int i = 0; i < 30; i++) {selectedCardsIndex[i]=-1;}
 
@@ -355,6 +539,11 @@ int main()
     Card pcHand[15];
     initDeckArray(playerHand, 15);
     initDeckArray(pcHand, 15);
+
+    Card playerTable[15];
+    Card pcTable[15];
+    initDeckArray(playerTable, 15);
+    initDeckArray(pcTable, 15);
 
     // MENU
 
@@ -380,23 +569,24 @@ int main()
                     playerCardSelection(playerCardPool, playerHand);
                     pcCardSelection(pcCardPool, pcHand);
 
-                    printf("\n\n>> Player hand: \n");
+                    printf("\n\n>> Your hand: \n");
                     for(int i = 0; i < 15; i++)
                     {
-                        if(playerHand[i].LP != 0)
+                        if(playerHand[i].LP != -1)
                         {
                             printf("%d. %s, %s, %d, %d, %d\n", i,playerHand[i].name, playerHand[i].type, playerHand[i].LP, playerHand[i].AP, playerHand[i].DP);
                         }
                     }
 
-                    printf("\n\n>> PC hand: \n");
-                    for(int i = 0; i < 15; i++)
-                    {
-                        if(pcHand[i].LP != 0)
-                        {
-                            printf("%d. %s, %s, %d, %d, %d\n", i,pcHand[i].name, pcHand[i].type, pcHand[i].LP, pcHand[i].AP, pcHand[i].DP);
-                        }
-                    }
+                    printf("\n>> Game Start [Press enter]");
+                    getchar();
+                    getchar();
+                    system("cls");
+
+                    gameStart(playerCardPool, pcCardPool, playerHand, pcHand, playerTable, pcTable);
+
+
+
 
 
 
@@ -502,7 +692,9 @@ int main()
                 break;
             case 3: // VER HISTORIAL
                 system("cls");
-
+                printf(">> Game history is not available yet.\n");
+                getchar();
+                getchar();
                 system("cls");
                 break;
             case 4: // SALIR DEL MENÚ
