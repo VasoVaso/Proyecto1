@@ -138,9 +138,9 @@ void printCards(Card *head)
     }
 }
 
-void initDeckArray(Card deck[])
+void initDeckArray(Card deck[], int limit)
 {
-    for(int i = 0; i < MAX_CARDS; i++)
+    for(int i = 0; i < limit; i++)
     {
         strcpy(deck[i].name, "");
         strcpy(deck[i].type, "");
@@ -193,12 +193,6 @@ void fillCardPool(int selectedCardsIndex[])
             pos++;
         }
     }
-    printf(">> Index: \n\n");
-    for(int k = 0; k < 30; k++)
-    {
-        printf("%d. %d\n", k, selectedCardsIndex[k]);
-    }
-    printf("\n");
 }
 
 void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
@@ -207,7 +201,6 @@ void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
     for(int i = 0; i < 15; i++)
     {
         strcpy(playerCardPool[i].name, deck[selectedIndex[pos]].name);
-        printf("%s -- %s\n", playerCardPool[i].name, deck[selectedIndex[pos]].name);
         strcpy(playerCardPool[i].type, deck[selectedIndex[pos]].type);
         playerCardPool[i].LP = deck[selectedIndex[pos]].LP;
         playerCardPool[i].AP = deck[selectedIndex[pos]].AP;
@@ -215,7 +208,7 @@ void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
         pos++;
     }
 
-    printf("\n>> Player Cards: \n\n");
+    printf(">> Player Cards: \n\n");
     for(int g = 0; g < 15; g++)
     {
         printf("%d. %s, %s, %d, %d, %d\n", g,playerCardPool[g].name, playerCardPool[g].type, playerCardPool[g].LP, playerCardPool[g].AP, playerCardPool[g].DP);
@@ -230,7 +223,6 @@ void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
     for(int i = 0; i < 15; i++)
     {
         strcpy(pcCardPool[i].name, deck[selectedIndex[pos]].name);
-        printf("%s -- %s\n", pcCardPool[i].name, deck[selectedIndex[pos]].name);
         strcpy(pcCardPool[i].type, deck[selectedIndex[pos]].type);
         pcCardPool[i].LP = deck[selectedIndex[pos]].LP;
         pcCardPool[i].AP = deck[selectedIndex[pos]].AP;
@@ -249,7 +241,7 @@ void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
 void playerCardSelection(Card playerCardPool[], Card playerHand[])
 {
     int c1=0, c2=0, c3=0;
-    printf(">> Choose 3 cards from the pool by typing the index.");
+    printf("\n>> Choose 3 cards from the pool by typing the index.\n");
 
     do
     {
@@ -263,7 +255,7 @@ void playerCardSelection(Card playerCardPool[], Card playerHand[])
 
     do
     {
-        printf("\nCard number 2: ");
+        printf("Card number 2: ");
         scanf("%d", &c2);
         if(c2 < 0 || c2 > 14 || c2 == c1)
         {
@@ -273,7 +265,7 @@ void playerCardSelection(Card playerCardPool[], Card playerHand[])
 
     do
     {
-        printf("\nCard number 3: ");
+        printf("Card number 3: ");
         scanf("%d", &c3);
         if(c3 < 0 || c3 > 14 || c3 == c2 || c3 == c1)
         {
@@ -281,12 +273,59 @@ void playerCardSelection(Card playerCardPool[], Card playerHand[])
         }
     }while(c3 < 0 || c3 > 14 || c3 == c2 || c3 == c1);
 
-    playerHand[0] = playerCardPool[c1];
-    playerHand[1] = playerCardPool[c2];
-    playerHand[2] = playerCardPool[c3];
+    strcpy(playerHand[0].name, playerCardPool[c1].name);
+    strcpy(playerHand[0].type, playerCardPool[c1].type);
+    playerHand[0].LP = playerCardPool[c1].LP;
+    playerHand[0].AP = playerCardPool[c1].AP;
+    playerHand[0].DP = playerCardPool[c1].DP;
+
+    strcpy(playerHand[1].name, playerCardPool[c2].name);
+    strcpy(playerHand[1].type, playerCardPool[c2].type);
+    playerHand[1].LP = playerCardPool[c2].LP;
+    playerHand[1].AP = playerCardPool[c2].AP;
+    playerHand[1].DP = playerCardPool[c2].DP;
+
+    strcpy(playerHand[2].name, playerCardPool[c3].name);
+    strcpy(playerHand[2].type, playerCardPool[c3].type);
+    playerHand[2].LP = playerCardPool[c3].LP;
+    playerHand[2].AP = playerCardPool[c3].AP;
+    playerHand[2].DP = playerCardPool[c3].DP;
+
+    printf("\n>> Done!");
 }
 
+void pcCardSelection(Card pcCardPool[], Card pcHand[])
+{
+    int randomNumb3=0,randomNumb2=0, randomNumb1 = rand() % 15; // Número random entre 0 y 14
+    do
+    {
+        randomNumb2 = rand() % 15;
+    }while(randomNumb2 == randomNumb1);
+    do
+    {
+        randomNumb3 = rand() % 15;
+    }while(randomNumb3 == randomNumb1 || randomNumb3 == randomNumb2);
 
+    strcpy(pcHand[0].name, pcCardPool[randomNumb1].name);
+    strcpy(pcHand[0].type, pcCardPool[randomNumb1].type);
+    pcHand[0].LP = pcCardPool[randomNumb1].LP;
+    pcHand[0].AP = pcCardPool[randomNumb1].AP;
+    pcHand[0].DP = pcCardPool[randomNumb1].DP;
+
+    strcpy(pcHand[1].name, pcCardPool[randomNumb2].name);
+    strcpy(pcHand[1].type, pcCardPool[randomNumb2].type);
+    pcHand[1].LP = pcCardPool[randomNumb2].LP;
+    pcHand[1].AP = pcCardPool[randomNumb2].AP;
+    pcHand[1].DP = pcCardPool[randomNumb2].DP;
+
+    strcpy(pcHand[2].name, pcCardPool[randomNumb3].name);
+    strcpy(pcHand[2].type, pcCardPool[randomNumb3].type);
+    pcHand[2].LP = pcCardPool[randomNumb3].LP;
+    pcHand[2].AP = pcCardPool[randomNumb3].AP;
+    pcHand[2].DP = pcCardPool[randomNumb3].DP;
+
+    printf("\n>> PC cards in hand!");
+}
 
 
 
@@ -298,7 +337,7 @@ int main()
     Card *newCard;
 
     char name[50], type[15];
-    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0, p1HandPos = 0, p2HandPos = 0;
+    int option=0, ntype = 0, lp = 0, ap = 0, dp = 0; //p1HandPos = 0, p2HandPos = 0;
 
     readFile(&head);
 
@@ -307,14 +346,15 @@ int main()
     for(int i = 0; i < 30; i++) {selectedCardsIndex[i]=-1;}
 
     Card deck[MAX_CARDS];
-    initDeckArray(deck);
+    initDeckArray(deck, MAX_CARDS);
 
     Card playerCardPool[15];
     Card pcCardPool[15];
 
     Card playerHand[15];
     Card pcHand[15];
-
+    initDeckArray(playerHand, 15);
+    initDeckArray(pcHand, 15);
 
     // MENU
 
@@ -331,27 +371,34 @@ int main()
                 if(cardAmount >= 30)
                 {
                     listToArray(head, deck); // PASO LAS CARTAS DESDE LA LISTA HACIA UN ARREGLO
-                    printf("Monos: \n");
-                    for(int i = 0; i < cardAmount; i++)
-                    {
-                        printf("%d. %s, %s, %d, %d, %d\n", i,deck[i].name, deck[i].type, deck[i].LP, deck[i].AP, deck[i].DP);
-                    }
-                    printf("\n");
 
                     fillCardPool(selectedCardsIndex);
 
                     getPlayerCards(deck, playerCardPool,selectedCardsIndex);
                     getPCCards(deck, pcCardPool,selectedCardsIndex);
 
-                    /*
+                    playerCardSelection(playerCardPool, playerHand);
+                    pcCardSelection(pcCardPool, pcHand);
+
                     printf("\n\n>> Player hand: \n");
                     for(int i = 0; i < 15; i++)
                     {
-                        if(playerCardPool != -1)
+                        if(playerHand[i].LP != 0)
                         {
                             printf("%d. %s, %s, %d, %d, %d\n", i,playerHand[i].name, playerHand[i].type, playerHand[i].LP, playerHand[i].AP, playerHand[i].DP);
                         }
-                    }*/
+                    }
+
+                    printf("\n\n>> PC hand: \n");
+                    for(int i = 0; i < 15; i++)
+                    {
+                        if(pcHand[i].LP != 0)
+                        {
+                            printf("%d. %s, %s, %d, %d, %d\n", i,pcHand[i].name, pcHand[i].type, pcHand[i].LP, pcHand[i].AP, pcHand[i].DP);
+                        }
+                    }
+
+
 
 
 
