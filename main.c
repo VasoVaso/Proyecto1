@@ -371,7 +371,7 @@ void playerSummon(Card playerHand[], Card playerTable[], int p1TablePos)
 {
     int select = -1;
     bool canSummon = false;
-    printf("\n>> Select a card to summon: \n");
+    printf("\n>> Select a card to summon: ");
     do
     {
         scanf("%d", &select);
@@ -393,11 +393,93 @@ void playerSummon(Card playerHand[], Card playerTable[], int p1TablePos)
     playerTable[p1TablePos].DP = playerHand[select].DP;
 
     playerHand[select].LP = -1;
+
+    printf("\n>> You have summoned %s!", playerTable[p1TablePos].name);
+}
+
+void pcSummon(Card pcHand[], Card pcTable[], int p2TablePos)
+{
+    int randomNumb = -1;
+    bool canSummon = false;
+
+    do
+    {
+        randomNumb = rand() % 15;
+        if(pcHand[randomNumb].LP == -1)
+        {
+            canSummon = false;
+        }
+        else
+        {
+            canSummon = true;
+        }
+    }while(canSummon == false);
+
+    strcpy(pcTable[p2TablePos].name, pcHand[randomNumb].name);
+    strcpy(pcTable[p2TablePos].type, pcHand[randomNumb].type);
+    pcTable[p2TablePos].LP = pcHand[randomNumb].LP;
+    pcTable[p2TablePos].AP = pcHand[randomNumb].AP;
+    pcTable[p2TablePos].DP = pcHand[randomNumb].DP;
+
+    pcHand[randomNumb].LP = -1;
+
+    printf("\n>> PC summoned %s!", pcTable[p2TablePos].name);
+}
+
+void playerAttack(Card playerTable[], Card pcTable[], int pcHP)
+{
+    int select = -1, select2 = -1;
+    bool canAttack = false, isAttackable = false;
+    printf("\n>> Select a card to attack your opponent: ");
+    do
+    {
+        scanf("%d", &select);
+        if(playerTable[select].LP == -1)
+        {
+            printf(">> Error. Invalid index. Try Again.\n");
+            canAttack = false;
+        }
+        else
+        {
+            canAttack = true;
+        }
+    }while(canAttack == false);
+
+    printf("\n>> Select an opponent card to attack: ");
+    do
+    {
+        scanf("%d", &select2);
+        if(pcTable[select].LP == -1)
+        {
+            printf(">> Error. Invalid index. Try Again.\n");
+            isAttackable = false;
+        }
+        else
+        {
+            isAttackable = true;
+        }
+    }while(isAttackable == false);
+
+    if(pcTable[select2].DP - playerTable[select].AP <= 0)
+    {
+        printf("\n>> You have destroyed %s!", pcTable[select2].name);
+        pcTable[select2].LP = -1;
+        pcHP--;
+    }
+    else
+    {
+        printf("\n>>%s has resisted the attack!", pcTable[select2].name);
+    }
+}
+
+void pcAttack(Card playerTable[], Card pcTable[])
+{
+
 }
 
 void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card pcHand[], Card playerTable[], Card pcTable[])
 {
-    int playerHP = 5, pcHP = 5, turn = 1, p1HandPos = 3, p2HandPos = 3, p1TablePos = 0, p2TablePos = 0, inHandCounterP1 = 0,action = 0;
+    int playerHP = 5, pcHP = 5, turn = 1, p1HandPos = 3, p2HandPos = 3, p1TablePos = 0, p2TablePos = 0, inHandCounterP1 = 0, inHandCounterP2 = 0, inTableCounterP1 = 0, inTableCounterP2 = 0, action = 0;
     bool canSummon1 = true, canAttack1 = false, canSummon2 = true, canAttack2 = false;
 
     do
@@ -411,7 +493,8 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
         {
             if(playerTable[i].LP != -1)
             {
-                printf("%d. %s, %s, %d, %d, %d\n", i, playerTable[i].name, playerTable[i].type, playerTable[i].LP, playerTable[i].AP, playerTable[i].DP);
+                printf("%d. %s, %s. LP: %d. AP: %d. DP: %d\n", i, playerTable[i].name, playerTable[i].type, playerTable[i].LP, playerTable[i].AP, playerTable[i].DP);
+                inTableCounterP1++;
             }
         }
         printf("\n----------------------- VS -----------------------\n");
@@ -421,16 +504,22 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
         {
             if(pcTable[i].LP != -1)
             {
-                printf("%d. %s, %s, %d, %d, %d\n", i, pcTable[i].name, pcTable[i].type, pcTable[i].LP, pcTable[i].AP, pcTable[i].DP);
+                printf("%d. %s, %s. LP: %d. AP: %d. DP: %d\n", i, pcTable[i].name, pcTable[i].type, pcTable[i].LP, pcTable[i].AP, pcTable[i].DP);
+                inTableCounterP2++;
             }
         }
         printf("\n---------------------------------------------------");
-        printf("\nTURN %d", turn);
+        printf("\nPlayer HP: %d, PC HP: %d - TURN %d", playerHP, pcHP, turn);
+
+
+
+
+
 
         // CUANDO EL TURNO SEA PAR, JUEGA EL PC. SI EL TURNO ES IMPAR, JUEGA EL USUARIO
         if(turn % 2 == 0) // TURNO DEL PC *********
         {
-            printf(", PC turn\n");
+            printf(", PC turn\n\n");
 
             // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
             if(p2HandPos < 15)
@@ -439,11 +528,65 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
                 p2HandPos++;
             }
             //-----------------------------------------------------
+            for(int i = 0; i < 15; i++)
+            {
+                if(pcHand[i].LP != -1)
+                {
+                    inHandCounterP2++;
+                }
+            }
+            if(inHandCounterP2 == 15)
+            {
+                canSummon2 = false;
+            }
+            if(inTableCounterP2 == 0)
+            {
+                canAttack2 = false;
+            }
+
+            action = (rand () % 2) + 1;
+
+            // COMANDO ATACAR
+            if(action == 1)
+            {
+                printf("\n>> PC is going to attack!");
+                if(turn == 2 || canAttack2 == false)
+                {
+                    printf("\n>> PC can't attack a card. Summoning instead...");
+                    action = 2;
+                }
+                else
+                {
+
+                }
+
+            }
+
+            // COMANDO INVOCAR
+            if(action == 2)
+            {
+                if(canSummon2 == false)
+                {
+                    printf("\n>> PC can't summon, no cards left in his hand.");
+                }
+                else
+                {
+                    pcSummon(pcHand, pcTable, p2TablePos);
+                    p2TablePos++;
+                }
+            }
 
         }
+
+
+
+
+
+
+
         else // TURNO DEL USUARIO **********
         {
-            printf(", YOUR turn\n");
+            printf(", YOUR turn\n\n");
 
             // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
             if(p1HandPos < 15)
@@ -466,6 +609,12 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
             {
                 canSummon1 = false;
             }
+            else {canSummon1 = true;}
+            if(inTableCounterP1 == 0)
+            {
+                canAttack1 = false;
+            }
+            else{canAttack1 = true;}
 
             printf("\n>> What are you going to do?\n1. Attack\n2. Summon a Guardian from your hand\n\n>> Your option: ");
             do
@@ -487,7 +636,7 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
                 }
                 else
                 {
-
+                    playerAttack(playerTable, pcTable, hpPointer2);
                 }
             }
 
@@ -506,6 +655,10 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
             }
         }
         turn++;
+        inHandCounterP1 = 0;
+        inHandCounterP2 = 0;
+        inTableCounterP1 = 0;
+        inTableCounterP2 = 0;
         printf("\n\n>> Pause.");
         getchar();
         getchar();
