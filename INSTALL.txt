@@ -1,0 +1,8 @@
+Instrucciones para realizar la instalación
+
+1. El programa fue hecho para Windows 10.
+2. Se debe contar con el IDE Code::Blocks (vers 20.03). 
+3. Debe clonar el repositorio en su computador.
+3. Dentro de la carpeta Proyecto_1 se debe abrir el archivo "Proyecto1.cbp".
+4. Para ejecutar el programa dentro de Code::Blocks, hacer clic en el ícono con una 
+tuerquita amarilla y una flechita verde (Build and Run).

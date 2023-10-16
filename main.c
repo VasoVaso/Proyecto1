@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+// ESTRUCTURA DONDE SE ALMACENAN LOS DATOS DE LAS CARTAS
 typedef struct card
 {
     char name[50];
@@ -19,6 +20,7 @@ typedef struct card
 
 int MAX_LP, MAX_AP, MAX_DP, MIN_LP, MIN_AP, MIN_DP, cardAmount;
 
+// FUNCIÓN DONDE SE AÑADE UNA CARTA A LA LISTA
 void addCard(Card **head, Card *newCard)
 {
     if (*head == NULL)
@@ -36,6 +38,7 @@ void addCard(Card **head, Card *newCard)
     }
 }
 
+// LECTURA DEL ARCHIVO Y CREACIÓN DE LA LISTA
 void readFile(Card **list)
 {
     FILE *file = fopen("guardians.txt", "r");
@@ -104,6 +107,7 @@ void readFile(Card **list)
     fclose(file);
 }
 
+// FUNCIÓN PARA LIBERAR MEMORIA RESERVADA
 void freeCards(Card *head)
 {
     Card *current = head;
@@ -115,6 +119,7 @@ void freeCards(Card *head)
     }
 }
 
+// FUNCIÓN PARA CREAR UNA CARTA, ALMACENANDO CADA DATO DENTRO DE UNA ESTRUCTURA
 Card* createCard(char *name, char *type, int lp, int ap, int dp)
 {
     Card *newCard = (Card*)malloc(sizeof(Card));
@@ -126,6 +131,7 @@ Card* createCard(char *name, char *type, int lp, int ap, int dp)
     return newCard;
 }
 
+// IMPRIMIR CARTAS
 void printCards(Card *head)
 {
     int i = 1;
@@ -139,6 +145,18 @@ void printCards(Card *head)
     }
 }
 
+/*
+            [IMPORTANTE]
+
+    A LO LARGO DEL CÓDIGO, DENTRO DE LOS ARREGLOS DE CARTAS, EL VALOR DE VIDA DE CADA
+    CARTA (LP) SERÁ DEFINIDO COMO -1 EN REPRESENTACIÓN DE QUE ESA CARTA YA NO SE ENCUENTRA
+    DISPONIBLE PARA USARSE.
+    EJEMPLO:
+    SI EN EL ARREGLO DE CARTAS DE LA MANO TRANSFORMO LOS PUNTOS DE VIDA EN -1 DE UNA CARTA ESPECÍFICA,
+    ESA CARTA YA NO SE ENCONTRARÁ SIMBÓLICAMENTE DENTRO LA MANO.
+    EN OTRAS PALABRAS, QUE UNA CARTA TENGA COMO ATRIBUTO -1 EN LP, SIGNIFICARÁ VACÍO.
+*/
+// INICIALIZAR VALORES DE LOS ARREGLOS A LO PREDETERMINADO
 void initDeckArray(Card deck[], int limit)
 {
     for(int i = 0; i < limit; i++)
@@ -151,6 +169,7 @@ void initDeckArray(Card deck[], int limit)
     }
 }
 
+// FUNCIÓN QUE TRASPASA LAS CARTAS ESTRUCTURA A UN ARREGLO ESTRUCTURA
 void listToArray(Card *head, Card deck[])
 {
     int i=0;
@@ -167,6 +186,9 @@ void listToArray(Card *head, Card deck[])
     }
 }
 
+// SE TOMAN ELEMENTOS ALEATORIOS DEL ARREGLO STRUCT DEL MAZO PRINCIPAL Y SE GUARDAN SUS ÍNDICES EN UN ARREGLO DE INT
+// SI UN NÚMERO ALEATORIO COINCIDE CON UNO GUARDADO PREVIAMENTE, NO SE REALIZA EL GUARDADO EN EL ARREGLO DE INT
+// LA FUNCIÓN HARÁ SU TRABAJO HASTA QUE SE HAYAN GUARDADO 30 ÍNDICES DISTINTOS
 void fillCardPool(int selectedCardsIndex[])
 {
     bool saveCard = false;
@@ -177,10 +199,10 @@ void fillCardPool(int selectedCardsIndex[])
 
         for(int i = 0; i < 30; i++)
         {
-            if(randomIndex == selectedCardsIndex[i])
+            if(randomIndex == selectedCardsIndex[i]) // AQUÍ SE DETECTA SI UN NÚMERO ALEATORIO SE REPITE
             {
                 saveCard = false;
-                break;
+                break; // POR LO QUE SE ROMPE EL CICLO PARA BUSCAR UN NUEVO NÚMERO
             }
             else
             {
@@ -188,6 +210,9 @@ void fillCardPool(int selectedCardsIndex[])
             }
         }
 
+        // ÚNICAMENTE SI EL NÚMERO ALEATORIO ES NUEVO, SE HARÁ EL GUARDADO EN
+        // EL ARREGLO Y SE AUMENTARÁ LA POSICIÓN PARA GUARDAR EN EL SIGUIENTE ESPACIO
+        // ASÍ HASTA COMPLETAR TODOS LOS ESPACIOS
         if(saveCard == true)
         {
             selectedCardsIndex[pos] = randomIndex;
@@ -196,6 +221,8 @@ void fillCardPool(int selectedCardsIndex[])
     }
 }
 
+// FUNCIÓN QUE TOMA LOS 15 PRIMEROS VALORES DEL ARREGLO DE ÍNDICES
+// ESTOS ÍNDICES PASARÁN LAS VALORES DE LAS ESTRUCTURAS AL NUEVO ARREGLO
 void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
 {
     int pos = 0;
@@ -209,7 +236,7 @@ void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
         pos++;
     }
 
-    printf(">> Player Cards: \n\n");
+    printf(">> Your Cards: \n\n");
     for(int g = 0; g < 15; g++)
     {
         printf("%d. %s, %s, %d, %d, %d\n", g,playerCardPool[g].name, playerCardPool[g].type, playerCardPool[g].LP, playerCardPool[g].AP, playerCardPool[g].DP);
@@ -217,6 +244,7 @@ void getPlayerCards(Card deck[], Card playerCardPool[],int selectedIndex[])
     printf("\n");
 }
 
+// FUNCIÓN QUE TOMA LOS OTROS 15 VALORES RESTANTES Y LOS AÑADE AL ARREGLO DEL PC
 void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
 {
     int pos = 15;
@@ -232,6 +260,7 @@ void getPCCards(Card deck[], Card pcCardPool[],int selectedIndex[])
     }
 }
 
+// FUNCIÓN DONDE EL JUGADOR ELIGE CON QUÉ CARTAS PARTIR EN LA MANO
 void playerCardSelection(Card playerCardPool[], Card playerHand[])
 {
     int c1=0, c2=0, c3=0;
@@ -292,6 +321,7 @@ void playerCardSelection(Card playerCardPool[], Card playerHand[])
     printf("\n>> Done!");
 }
 
+// FUNCIÓN DONDE EL PC TOMA AL AZAR SUS PRIMERAS 3 CARTAS A LA MANO
 void pcCardSelection(Card pcCardPool[], Card pcHand[])
 {
     int randomNumb3=0,randomNumb2=0, randomNumb1 = rand() % 15; // Número random entre 0 y 14
@@ -329,6 +359,7 @@ void pcCardSelection(Card pcCardPool[], Card pcHand[])
     printf("\n>> PC cards in hand!");
 }
 
+// EL JUGADOR ROBA UNA CARTA ALEATORIA DE SU MAZO DE 15 CARTAS
 void drawPlayerCard(Card playerCardPool[], Card playerHand[], int p1HandPos)
 {
     int randomNumb = 0;
@@ -348,6 +379,7 @@ void drawPlayerCard(Card playerCardPool[], Card playerHand[], int p1HandPos)
     printf("\n>> 1 CARD DRAWED [%s]\n", playerHand[p1HandPos].name);
 }
 
+// EL PC ROBA UNA CARTA ALEATORIA DE SU MAZO DE 15 CARTAS
 void drawPCCard(Card pcCardPool[], Card pcHand[], int p2HandPos)
 {
     int randomNumb = 0;
@@ -364,9 +396,10 @@ void drawPCCard(Card pcCardPool[], Card pcHand[], int p2HandPos)
     pcHand[p2HandPos].DP = pcCardPool[randomNumb].DP;
 
     pcCardPool[randomNumb].LP = -1;
-    printf("\n>> 1 CARD DRAWED BY PC\n");
+    printf("\n>> PC DRAWED A CARD\n");
 }
 
+// FUNCIÓN DONDE EL JUGADOR INVOCA UNA CARTA DE LA MANO A LA MESA DE COMBATE
 void playerSummon(Card playerHand[], Card playerTable[], int p1TablePos)
 {
     int select = -1;
@@ -397,6 +430,7 @@ void playerSummon(Card playerHand[], Card playerTable[], int p1TablePos)
     printf("\n>> You have summoned %s!", playerTable[p1TablePos].name);
 }
 
+// FUNCIÓN DONDE EL PC INVOCA UNA CARTA DE LA MANO A LA MESA DE COMBATE DE MANERA ALEATORIA
 void pcSummon(Card pcHand[], Card pcTable[], int p2TablePos)
 {
     int randomNumb = -1;
@@ -426,7 +460,8 @@ void pcSummon(Card pcHand[], Card pcTable[], int p2TablePos)
     printf("\n>> PC summoned %s!", pcTable[p2TablePos].name);
 }
 
-void playerAttack(Card playerTable[], Card pcTable[], int pcHP)
+// FUNCIÓN DONDE EL JUGADOR ELIGE A QUIEN ATACAR Y CON QUIEN, DENTRO DE LA MESA
+int playerAttack(Card playerTable[], Card pcTable[], int pcHP)
 {
     int select = -1, select2 = -1;
     bool canAttack = false, isAttackable = false;
@@ -449,7 +484,7 @@ void playerAttack(Card playerTable[], Card pcTable[], int pcHP)
     do
     {
         scanf("%d", &select2);
-        if(pcTable[select].LP == -1)
+        if(pcTable[select2].LP == -1)
         {
             printf(">> Error. Invalid index. Try Again.\n");
             isAttackable = false;
@@ -470,17 +505,64 @@ void playerAttack(Card playerTable[], Card pcTable[], int pcHP)
     {
         printf("\n>>%s has resisted the attack!", pcTable[select2].name);
     }
+    return pcHP;
 }
 
-void pcAttack(Card playerTable[], Card pcTable[])
+// FUNCIÓN DONDE EL PC ELIGE A QUIEN ATACAR Y CON QUIEN, DENTRO DE LA MESA. DE MANERA COMPLETAMENTE ALEATORIA
+int pcAttack(Card playerTable[], Card pcTable[], int playerHP)
 {
+    int rand1 = 0, rand2 = 0;
+    bool canAttack = false, isAttackable = false;
 
+    // SELECCIÓN DE CARTA ATACANTE DEL PC
+    do
+    {
+        rand1 = rand() % 15;
+        if(pcTable[rand1].LP == -1)
+        {
+            canAttack = false;
+        }
+        else
+        {
+            canAttack = true;
+        }
+    }while(canAttack == false);
+
+    // SELECCIÓN DE CARTA OBJETIVO DEL JUGADOR
+    do
+    {
+        rand2 = rand() % 15;
+        if(playerTable[rand2].LP == -1)
+        {
+            isAttackable = false;
+        }
+        else
+        {
+            isAttackable = true;
+        }
+    }while(isAttackable == false);
+
+    // RESULTADOS
+    printf("\n>>%s is going to attack %s", pcTable[rand1].name, playerTable[rand2].name);
+
+    if(playerTable[rand2].DP - pcTable[rand1].AP <= 0)
+    {
+        printf("\n>> PC have destroyed %s!", playerTable[rand2].name);
+        playerTable[rand2].LP = -1;
+        playerHP--;
+    }
+    else
+    {
+        printf("\n>>%s has resisted the attack!", playerTable[rand2].name);
+    }
+    return playerHP;
 }
 
+// FUNCIÓN DONDE SE DESARROLLA TODO EL JUEGO, INTERACCIÓN ENTRE JUGADOR Y MESA Y PC
 void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card pcHand[], Card playerTable[], Card pcTable[])
 {
     int playerHP = 5, pcHP = 5, turn = 1, p1HandPos = 3, p2HandPos = 3, p1TablePos = 0, p2TablePos = 0, inHandCounterP1 = 0, inHandCounterP2 = 0, inTableCounterP1 = 0, inTableCounterP2 = 0, action = 0;
-    bool canSummon1 = true, canAttack1 = false, canSummon2 = true, canAttack2 = false;
+    bool canSummon1 = true, canAttack1 = false, canSummon2 = true, canAttack2 = false, isOver = false;
 
     do
     {
@@ -509,17 +591,12 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
             }
         }
         printf("\n---------------------------------------------------");
-        printf("\nPlayer HP: %d, PC HP: %d - TURN %d", playerHP, pcHP, turn);
-
-
-
-
-
+        printf("\n[Player HP: %d] [PC HP: %d] - [TURN %d", playerHP, pcHP, turn);
 
         // CUANDO EL TURNO SEA PAR, JUEGA EL PC. SI EL TURNO ES IMPAR, JUEGA EL USUARIO
         if(turn % 2 == 0) // TURNO DEL PC *********
         {
-            printf(", PC turn\n\n");
+            printf(", PC turn]\n\n");
 
             // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
             if(p2HandPos < 15)
@@ -557,14 +634,14 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
                 }
                 else
                 {
-
+                    playerHP = pcAttack(playerTable, pcTable, playerHP);
                 }
-
             }
 
             // COMANDO INVOCAR
             if(action == 2)
             {
+                printf("\n>> PC is going to summon!");
                 if(canSummon2 == false)
                 {
                     printf("\n>> PC can't summon, no cards left in his hand.");
@@ -575,18 +652,11 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
                     p2TablePos++;
                 }
             }
-
         }
-
-
-
-
-
-
 
         else // TURNO DEL USUARIO **********
         {
-            printf(", YOUR turn\n\n");
+            printf(", YOUR turn]\n\n");
 
             // SI TODAVÍA QUEDAN CARTAS EN EL MAZO, SE ROBA 1 CARTA
             if(p1HandPos < 15)
@@ -636,7 +706,7 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
                 }
                 else
                 {
-                    playerAttack(playerTable, pcTable, hpPointer2);
+                    pcHP = playerAttack(playerTable, pcTable, pcHP);
                 }
             }
 
@@ -659,11 +729,27 @@ void gameStart(Card playerCardPool[], Card pcCardPool[], Card playerHand[], Card
         inHandCounterP2 = 0;
         inTableCounterP1 = 0;
         inTableCounterP2 = 0;
+        if(playerHP == 0 || pcHP == 0)
+        {
+            isOver = true;
+        }
         printf("\n\n>> Pause.");
         getchar();
         getchar();
         system("cls");
-    } while(playerHP > 0 || pcHP > 0);
+    } while(isOver == false);
+
+    if(playerHP == 0)
+    {
+        printf(">> You have lost all your lives. Your opponent WINS!");
+    }
+    if(pcHP == 0)
+    {
+        printf(">> Your opponent have lost all his lives. YOU WIN!");
+    }
+    getchar();
+    getchar();
+    system("cls");
 }
 
 int main()
@@ -682,17 +768,21 @@ int main()
     int selectedCardsIndex[30];
     for(int i = 0; i < 30; i++) {selectedCardsIndex[i]=-1;}
 
+    // ARREGLO DEL MAZO PRINCIPAL
     Card deck[MAX_CARDS];
     initDeckArray(deck, MAX_CARDS);
 
+    // ARREGLO DE CARTAS QUE ACTUARÁN COMO LAS 15 REPARTIDAS A CADA JUGADOR, AL AZAR
     Card playerCardPool[15];
     Card pcCardPool[15];
 
+    // ARREGLO DE CARTAS QUE SE ENCONTRARÁN EN LA MANO DE LOS JUGADORES
     Card playerHand[15];
     Card pcHand[15];
     initDeckArray(playerHand, 15);
     initDeckArray(pcHand, 15);
 
+    // ARREGLO DE CARTAS QUE SE ENCONTRARÁN EN LA MESA DE JUEGO PARA COMBATIR
     Card playerTable[15];
     Card pcTable[15];
     initDeckArray(playerTable, 15);
@@ -708,19 +798,20 @@ int main()
         scanf("%d", &option);
         switch(option)
         {
-            case 1: // JUGAR
+            // JUGAR
+            case 1:
                 system("cls");
-                if(cardAmount >= 30)
+                if(cardAmount >= 30) // SE NECESITAN MÍNIMO 30 CARTAS PARA REALIZAR LA REPARTICIÓN
                 {
-                    listToArray(head, deck); // PASO LAS CARTAS DESDE LA LISTA HACIA UN ARREGLO
+                    listToArray(head, deck); // LAS CARTAS PASAN DESDE LA LISTA HACIA EL ARREGLO
 
-                    fillCardPool(selectedCardsIndex);
+                    fillCardPool(selectedCardsIndex); // SE RELLENA EL ARREGLO DE LAS CARTAS QUE SERÁN REPARTIDAS A LOS JUGADORES
 
-                    getPlayerCards(deck, playerCardPool,selectedCardsIndex);
-                    getPCCards(deck, pcCardPool,selectedCardsIndex);
+                    getPlayerCards(deck, playerCardPool,selectedCardsIndex); // SE OBTIENEN CARTAS PARA EL JUGADOR DESDE EL ARREGLO DE CARTAS REPARTIDAS
+                    getPCCards(deck, pcCardPool,selectedCardsIndex); // SE OBTIENEN CARTAS PARA EL PC DESDE EL ARREGLO DE CARTAS REPARTIDAS
 
-                    playerCardSelection(playerCardPool, playerHand);
-                    pcCardSelection(pcCardPool, pcHand);
+                    playerCardSelection(playerCardPool, playerHand); // EL JUGADOR ELIGE MANUALMENTE CON QUÉ CARTAS DESEA JUGAR
+                    pcCardSelection(pcCardPool, pcHand); // LA MÁQUINA OBTIENE SUS PRIMERAS 3 CARTAS AL AZAR
 
                     printf("\n\n>> Your hand: \n");
                     for(int i = 0; i < 15; i++)
@@ -736,15 +827,13 @@ int main()
                     getchar();
                     system("cls");
 
-                    gameStart(playerCardPool, pcCardPool, playerHand, pcHand, playerTable, pcTable);
+                    gameStart(playerCardPool, pcCardPool, playerHand, pcHand, playerTable, pcTable); // FUNCIÓN DONDE SE DESARROLLA EL JUEGO
 
-
-
-
-
-
-
-
+                    // LOS ARREGLOS SE VUELVEN A INICIALIZAR A SUS VALORES PREDETERMINADOS PARA PODER JUGAR UNA NUEVA PARTIDA
+                    initDeckArray(playerHand, 15);
+                    initDeckArray(pcHand, 15);
+                    initDeckArray(playerTable, 15);
+                    initDeckArray(pcTable, 15);
                 }
                 else
                 {
@@ -756,7 +845,7 @@ int main()
                 break;
             case 2: // CREAR CARTA
                 system("cls");
-                if(cardAmount < MAX_CARDS)
+                if(cardAmount < MAX_CARDS) // SE CREAN MÁS CARTAS MIENTRAS LA CANTIDAD ACTUAL NO SOBREPASE EL LÍMITE PERMITIDO
                 {
                     printf(">> Card Name: ");
                     gets(name);
@@ -830,6 +919,8 @@ int main()
                         }
                     }while(dp < MIN_DP || dp > MAX_DP);
 
+                    // UNA VEZ RECOGIDOS TODOS LOS DATOS, ESTOS SE AÑADEN A UNA NUEVA ESTRUCTURA
+                    // QUE POSTERIORMENTE SERÁ AÑADIDA A LA LISTA DE CARTAS
                     newCard = createCard(name, type, lp, ap, dp);
                     addCard(&head, newCard);
                     cardAmount++;
